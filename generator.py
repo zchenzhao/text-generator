@@ -19,8 +19,9 @@ def processed_text(text):
     return text
 
 
-def generate_mapping(list_of_words):
-    mapping = {}
+def generate_mapping(list_of_words, mapping=None):
+    if not mapping:
+        mapping = {}
 
     for i in range(len(list_of_words) - 1):
         current_word = list_of_words[i]
@@ -57,11 +58,16 @@ def generate_sentences(mapping, opening_word):
     return ' '.join(list_of_generated_words)
 
 
-def generate(text, opening_word):
-    text = processed_text(text)
-    list_of_words = text.split()
+def generate(list_of_texts):
+    mapping = None
 
-    mapping = generate_mapping(list_of_words)
+    for path in list_of_texts:
+        text = training_text(path)
+        text = processed_text(text)
+        list_of_words = text.split()
+        mapping = generate_mapping(list_of_words, mapping)
+
+    opening_word = input('First word: ')
     generated_writing = generate_sentences(mapping, opening_word.lower())
 
     return generated_writing
@@ -70,14 +76,15 @@ def generate(text, opening_word):
 def training_text(path):
     with open(path, 'r') as f:
         return f.read()
-        
+
 
 if __name__ == '__main__':
-    path_to_training_data = input('Path to data to train on: ')
-    opening_word = input('First word: ')
-
-    text = training_text(path_to_training_data)
-    generated_text = generate(text, opening_word)
+    generated_text = generate(
+        [
+            '/Users/cindyzhao/Downloads/war-and-peace.txt',
+            '/Users/cindyzhao/Downloads/the-mysterious-affair-at-styles.txt',
+            '/Users/cindyzhao/Downloads/the-secret-adversary.txt'
+        ])
 
     print(generated_text)
     
