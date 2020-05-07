@@ -1,4 +1,4 @@
-from text_generator import TextGenerator
+from markov_generator import MarkovGenerator
 
 if __name__ == '__main__':
     pass
@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     texts2 = ['data/spiderman.txt']
 
-    generator = TextGenerator()
+    generator = MarkovGenerator()
     generator.train(texts)
     generated_text = generator.generate_text('dear')
 

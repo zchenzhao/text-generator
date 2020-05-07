@@ -1,27 +1,22 @@
 import numpy as np
 
-class TextGenerator(object):
+class MarkovGenerator(object):
 
     def __init__(self):
         self._mapping = {}
 
     def train(self, paths_to_texts):
         for path in paths_to_texts:
-            try:
-                with open(path, 'r') as f:
-                    text = f.read()
-            except FileNotFoundError:
-                print(f'`{path}` does not exist.')
+            text = self._read_file(path)
             text = self._processed_text(text)
             list_of_words = text.split()
             self._map(list_of_words)
 
     def generate_text(self, opening_word):
-        if opening_word not in self._mapping:
-            print('Please train the text generator first or select a different word.')
-            return
-        
         opening_word = opening_word.lower()
+
+        if opening_word not in self._mapping:
+            raise WordNotFoundError
 
         list_of_generated_words = []
         current_word = opening_word
@@ -39,8 +34,17 @@ class TextGenerator(object):
             list_of_generated_words.append(current_word)
             current_word = next_word
 
-        return ' '.join(list_of_generated_words)
+        unprocessed_generated_text = ' '.join(list_of_generated_words)
+        generated_text = self._processed_generated_text(unprocessed_generated_text)
 
+        return generated_text
+
+    def _read_file(self, file_path):
+        try:
+            with open(file_path, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            print(f'`{file_path}` does not exist.')
 
     def _processed_text(self, text):
         unwanted_punctuation = '@#$%^&*()[]{}/\\`~<>=+_'
@@ -60,6 +64,18 @@ class TextGenerator(object):
 
         return text
 
+    def _processed_generated_text(self, text):
+        text = text.replace(' .', '.')
+        text = text.replace(' ,', ',')
+        text = text.replace(' ?', '?')
+        text = text.replace(' !', '!')
+        text = text.replace(' :', ':')
+        text = text.replace(' ;', ';')
+        text = text.replace(' - ', '-')
+        text = text.replace(' "', '"')
+
+        return text
+
     def _map(self, list_of_words):
         for i in range(len(list_of_words) - 1):
             current_word = list_of_words[i]
@@ -72,3 +88,7 @@ class TextGenerator(object):
                 self._mapping[current_word][next_word] = 0
 
             self._mapping[current_word][next_word] += 1
+
+
+class WordNotFoundError(Exception):
+    pass
